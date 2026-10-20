@@ -6,15 +6,22 @@
     <title>Weather Dashboard</title>
     <style>
         body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            background-color: black; overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             font-family: Arial, sans-serif;
         }
-        
         /* The weather GIF image container */
         img {
-            max-width: 100%; max-height: 100%; object-fit: contain;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
     </style>
 </head>
@@ -24,35 +31,45 @@
     <img id="slideshow" src="" alt="Weather Link">
 
     <script>
-        // ==========================================
-        // 1. CONFIGURATION
-        // ==========================================
-        const images = [
-            "https://s.w-x.co/staticmaps/wu/wu/wxtype1200_cur/conus/animate.png",
-            "https://s.w-x.co/staticmaps/wu/wu/satir1200_cur/usasc/animate.png",
-            "https://s.w-x.co/staticmaps/wu/wu/wxtype1200_cur/uslaw/animate.png",
-            "https://s.w-x.co/staticmaps/wu/wu/wxtype1200_cur/ussat/animate.png"
 
+        const slideshowData = [
+            { 
+                url: "https://s.w-x.co/staticmaps/wu/wu/wxtype1200_cur/conus/animate.png", 
+                duration: 9000
+            },
+            { 
+                url: "https://s.w-x.co/staticmaps/wu/wu/satir1200_cur/usasc/animate.png", 
+                duration: 7200
+            },
+            { 
+                url: "https://s.w-x.co/staticmaps/wu/wu/wxtype1200_cur/uslaw/animate.png", 
+                duration: 9000
+            },
+            { 
+                url: "https://s.w-x.co/staticmaps/wu/wu/wxtype1200_cur/ussat/animate.png", 
+                duration: 9000
+            }
         ];
 
-        const rotationSpeed = 9000; // Time interval (10000ms = 10 seconds)
-
-        // ==========================================
-        // 2. SLIDESHOW LOGIC
-        // ==========================================
         let currentIndex = 0;
         const imgElement = document.getElementById("slideshow");
 
         function changeImage() {
+            const currentItem = slideshowData[currentIndex];
+            
             // Appends a live timestamp string to completely bypass browser image caching issues
             const cacheBuster = "?t=" + new Date().getTime();
-            imgElement.src = images[currentIndex] + cacheBuster;
-            currentIndex = (currentIndex + 1) % images.length;
+            imgElement.src = currentItem.url + cacheBuster;
+
+            // Move to the next index or wrap around to 0
+            currentIndex = (currentIndex + 1) % slideshowData.length;
+
+            // Schedule the next image change using the current item's specific duration
+            setTimeout(changeImage, currentItem.duration);
         }
 
+        // Start the loop
         changeImage();
-        setInterval(changeImage, rotationSpeed);
-
     </script>
 </body>
 </html>
