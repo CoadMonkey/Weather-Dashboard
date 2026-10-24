@@ -59,6 +59,7 @@
     <img id="slideshow" src="" alt="Weather Link">
 
     <script>
+        
         const slideshowData = [
             { 
                 // WU-US Radar
@@ -88,23 +89,28 @@
         ];
 
         let currentIndex = 0;
-        let isPaused = false; // Tracks the state of the slideshow loop
-        let timeoutId = null; // Stores the active alarm reference so we can cancel it
+        let isPaused = false; 
+        let timeoutId = null; 
         
         const imgElement = document.getElementById("slideshow");
         const toggleBtn = document.getElementById("toggleBtn");
 
         function changeImage() {
+            // Safety clear to ensure overlapping timers never build up
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+
             const currentItem = slideshowData[currentIndex];
             
-            // Appends a live timestamp string to bypass browser image caching
+            // Appends a live timestamp string to completely bypass browser image caching issues
             const cacheBuster = "?t=" + new Date().getTime();
             imgElement.src = currentItem.url + cacheBuster;
 
-            // Move the index pointer up for the next time it wakes up
+            // Move to the next index or wrap around to 0
             currentIndex = (currentIndex + 1) % slideshowData.length;
 
-            // ONLY schedule the next slide if we aren't currently paused
+            // Schedule the next image change using the current item's specific duration
             if (!isPaused) {
                 timeoutId = setTimeout(changeImage, currentItem.duration);
             }
@@ -112,19 +118,18 @@
 
         function togglePlayback() {
             if (isPaused) {
-                // Resume loop execution
                 isPaused = false;
                 toggleBtn.innerText = "⏸ Pause";
                 changeImage();
             } else {
-                // Halt loop execution
                 isPaused = true;
                 toggleBtn.innerText = "▶ Play";
-                clearTimeout(timeoutId); // Physically smash the currently ticking countdown alarm
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
             }
         }
 
-        // Start the loop automatically on page load
         changeImage();
     </script>
 </body>
