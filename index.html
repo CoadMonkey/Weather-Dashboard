@@ -23,61 +23,108 @@
             max-height: 100%;
             object-fit: contain;
         }
+        /* UI Control Button Overlay */
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+        .btn {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            padding: 10px 18px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s ease;
+        }
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
+        }
     </style>
 </head>
 <body>
+
+    <!-- UI Overlay -->
+    <div id="controls">
+        <button id="toggleBtn" class="btn" onclick="togglePlayback()">⏸ Pause</button>
+    </div>
 
     <!-- Weather Image -->
     <img id="slideshow" src="" alt="Weather Link">
 
     <script>
-
         const slideshowData = [
-            { 
+            {
                 // WU-US Radar
-                url: "https://s.w-x.co/staticmaps/wu/wu/wxtype1200_cur/conus/animate.png", 
+                url: "https://w-x.co",
                 duration: 9000
             },
-            { 
+            {
                 // WU Satellite+Infrared, S.Central
-                url: "https://s.w-x.co/staticmaps/wu/wu/satir1200_cur/usasc/animate.png", 
+                url: "https://w-x.co",
                 duration: 7200
             },
-            { 
+            {
                 // WU Radar-Lawton, OK
-                url: "https://s.w-x.co/staticmaps/wu/wu/wxtype1200_cur/uslaw/animate.png", 
+                url: "https://w-x.co",
                 duration: 9000
             },
-            { 
+            {
                 // WU Radar-San Antonio, TX
-                url: "https://s.w-x.co/staticmaps/wu/wu/wxtype1200_cur/ussat/animate.png", 
+                url: "https://w-x.co",
                 duration: 9000
             },
-            { 
+            {
                 // KETK Live Doppler-ETX
-                url: "https://media.psg.nexstardigital.net/ketk/weather/LiveDopplerSkywatch.gif", 
+                url: "https://nexstardigital.net",
                 duration: 9800
             }
         ];
 
         let currentIndex = 0;
+        let isPaused = false; // Tracks the state of the slideshow loop
+        let timeoutId = null; // Stores the active alarm reference so we can cancel it
+        
         const imgElement = document.getElementById("slideshow");
+        const toggleBtn = document.getElementById("toggleBtn");
 
         function changeImage() {
             const currentItem = slideshowData[currentIndex];
             
-            // Appends a live timestamp string to completely bypass browser image caching issues
+            // Appends a live timestamp string to bypass browser image caching
             const cacheBuster = "?t=" + new Date().getTime();
             imgElement.src = currentItem.url + cacheBuster;
 
-            // Move to the next index or wrap around to 0
+            // Move the index pointer up for the next time it wakes up
             currentIndex = (currentIndex + 1) % slideshowData.length;
 
-            // Schedule the next image change using the current item's specific duration
-            setTimeout(changeImage, currentItem.duration);
+            // ONLY schedule the next slide if we aren't currently paused
+            if (!isPaused) {
+                timeoutId = setTimeout(changeImage, currentItem.duration);
+            }
         }
 
-        // Start the loop
+        function togglePlayback() {
+            if (isPaused) {
+                // Resume loop execution
+                isPaused = false;
+                toggleBtn.innerText = "⏸ Pause";
+                changeImage();
+            } else {
+                // Halt loop execution
+                isPaused = true;
+                toggleBtn.innerText = "▶ Play";
+                clearTimeout(timeoutId); // Physically smash the currently ticking countdown alarm
+            }
+        }
+
+        // Start the loop automatically on page load
         changeImage();
     </script>
 </body>
