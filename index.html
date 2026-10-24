@@ -23,15 +23,43 @@
             max-height: 100%;
             object-fit: contain;
         }
+        /* UI Control Button Overlay */
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+        }
+        .btn {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            padding: 10px 18px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s ease;
+        }
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
+        }
     </style>
 </head>
 <body>
+
+    <!-- UI Overlay -->
+    <div id="controls">
+        <button id="toggleBtn" class="btn" onclick="togglePlayback()">⏸ Pause</button>
+    </div>
 
     <!-- Weather Image -->
     <img id="slideshow" src="" alt="Weather Link">
 
     <script>
-
+        
         const slideshowData = [
             { 
                 // WU-US Radar
@@ -61,9 +89,18 @@
         ];
 
         let currentIndex = 0;
+        let isPaused = false; 
+        let timeoutId = null; 
+        
         const imgElement = document.getElementById("slideshow");
+        const toggleBtn = document.getElementById("toggleBtn");
 
         function changeImage() {
+            // Safety clear to ensure overlapping timers never build up
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+
             const currentItem = slideshowData[currentIndex];
             
             // Appends a live timestamp string to completely bypass browser image caching issues
@@ -74,10 +111,25 @@
             currentIndex = (currentIndex + 1) % slideshowData.length;
 
             // Schedule the next image change using the current item's specific duration
-            setTimeout(changeImage, currentItem.duration);
+            if (!isPaused) {
+                timeoutId = setTimeout(changeImage, currentItem.duration);
+            }
         }
 
-        // Start the loop
+        function togglePlayback() {
+            if (isPaused) {
+                isPaused = false;
+                toggleBtn.innerText = "⏸ Pause";
+                changeImage();
+            } else {
+                isPaused = true;
+                toggleBtn.innerText = "▶ Play";
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+            }
+        }
+
         changeImage();
     </script>
 </body>
